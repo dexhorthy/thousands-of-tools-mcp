@@ -1,4 +1,3 @@
-// Entry point for thousand-tools-mcp application
 import { greet } from "./utils";
 
 function main() {
