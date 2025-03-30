@@ -1,7 +1,12 @@
-import { greet } from "./utils";
+import { runMcpClient } from './app.js';
 
-function main() {
-  console.log(greet("thousand-tools-mcp"));
+async function main() {
+  try {
+    await runMcpClient();
+  } catch (error) {
+    console.error('MCP client failed:', error);
+    process.exit(1);
+  }
 }
 
 main();

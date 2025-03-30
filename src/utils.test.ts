@@ -1,4 +1,4 @@
-import { add } from "./utils";
+import { add } from "./utils.js";
 
 describe('Basic math functions', () => {
   test('add function adds two numbers', () => {
