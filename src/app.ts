@@ -26,11 +26,33 @@ export async function runMcpClient() {
     await client.connect(transport);
     
     // List available tools
-    const tools = await client.listTools();
-    console.log('Available MCP tools:');
-    console.log(JSON.stringify(tools, null, 2));
+    const response = await client.listTools();
+    console.log('# Available MCP Tools\n');
     
-    return tools;
+    // Check if response has a tools property (based on the example)
+    const tools = response.tools || response;
+    
+    if (Array.isArray(tools)) {
+      for (const tool of tools) {
+        console.log(`## ${tool.name}`);
+        console.log(tool.description || '');
+        
+        if (tool.inputSchema?.properties) {
+          console.log('\n### Parameters:');
+          
+          for (const [paramName, param] of Object.entries(tool.inputSchema.properties)) {
+            const required = tool.inputSchema.required?.includes(paramName) ? '[Required]' : '[Optional]';
+            console.log(`- \`${paramName}\`: ${param.description} ${required}`);
+          }
+        }
+        console.log('');
+      }
+    } else {
+      console.log('No tools found or unexpected format returned.');
+      console.log('Raw response:', JSON.stringify(response, null, 2));
+    }
+    
+    return response;
   } catch (error) {
     console.error('Error connecting to MCP server:', error);
     throw error;
