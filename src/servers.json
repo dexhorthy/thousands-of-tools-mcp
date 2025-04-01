@@ -1,0 +1,22 @@
+{
+  "fetch": {
+    "command": "uvx",
+    "args": ["mcp-server-fetch"]
+  },
+  "memory": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-memory"]
+  },
+  "sqlite": {
+    "command": "uvx",
+    "args": ["mcp-server-sqlite", "--db-path", "~/test.db"]
+  },
+  "filesystem": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+  },
+  "git": {
+    "command": "uvx",
+    "args": ["mcp-server-git"]
+  }
+}
