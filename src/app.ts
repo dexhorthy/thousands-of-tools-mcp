@@ -46,7 +46,7 @@ async function connectToServer(config: ServerConfig) {
   }
 }
 
-export async function runMcpClient(outputFormat: 'text' | 'json' = 'text') {
+export async function runMcpClient(outputFormat: 'text' | 'json' | 'count' = 'text') {
   try {
     if (outputFormat === 'text') {
       console.log('AVAILABLE MCP TOOLS\n');
@@ -72,9 +72,11 @@ export async function runMcpClient(outputFormat: 'text' | 'json' = 'text') {
 
     // Connect to all servers
     const results: ServerResults = {};
+    let totalTools = 0;
     for (const [name, config] of Object.entries(configs)) {
       try {
         results[name] = await connectToServer(config);
+        totalTools += results[name].tools.length;
         
         // Display tools for this server
         if (outputFormat === 'text') {
@@ -99,6 +101,13 @@ export async function runMcpClient(outputFormat: 'text' | 'json' = 'text') {
           return acc;
         }, {} as Record<string, any>);
         console.log(JSON.stringify(jsonOutput, null, 2));
+      } else if (outputFormat === 'count') {
+        const serverCounts = Object.entries(results).map(([name, result]) => 
+          `${name}: ${result.tools.length} tools`
+        );
+        console.log('\nTool count by server:');
+        console.log(serverCounts.join('\n'));
+        console.log(`\nTotal tools available: ${totalTools}`);
       }
       return results;
     } finally {
