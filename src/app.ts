@@ -70,21 +70,34 @@ export async function runMcpClient(outputFormat: 'text' | 'json' | 'count' = 'te
       );
     }
 
-    // Connect to all servers
+    // Connect to all servers in parallel
+    const serverConnections = Object.entries(configs).map(async ([name, config]) => {
+      try {
+        const result = await connectToServer(config);
+        return { name, result };
+      } catch (error) {
+        console.error(`Failed to connect to ${name} server:`, error);
+        return { name, result: null };
+      }
+    });
+
     const results: ServerResults = {};
     let totalTools = 0;
-    for (const [name, config] of Object.entries(configs)) {
-      try {
-        results[name] = await connectToServer(config);
-        totalTools += results[name].tools.length;
+
+    // Wait for all connections to complete
+    const connectionResults = await Promise.all(serverConnections);
+    
+    // Process results
+    for (const { name, result } of connectionResults) {
+      if (result) {
+        results[name] = result;
+        totalTools += result.tools.length;
         
         // Display tools for this server
         if (outputFormat === 'text') {
           console.log(`\n${name.toUpperCase()}:`);
-          displayTools(results[name].tools);
+          displayTools(result.tools);
         }
-      } catch (error) {
-        console.error(`Failed to connect to ${name} server:`, error);
       }
     }
 
