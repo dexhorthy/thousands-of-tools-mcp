@@ -65,8 +65,7 @@ export async function runMcpClient() {
       '--db-path',
       testDbPath
     ]);
-    const timeResult = await connectToServer('uvx', ['mcp-server-time']);
-    const filesystemResult = await connectToServer('npx', ['mcp-server-filesystem', '.']);
+    const filesystemResult = await connectToServer('npx', ['-y', '@modelcontextprotocol/server-filesystem', '.']);
     const gitResult = await connectToServer('uvx', ['mcp-server-git']);
     
     try {
@@ -80,9 +79,6 @@ export async function runMcpClient() {
       console.log('\nSQLITE:');
       displayTools(sqliteResult.tools);
 
-      console.log('\nTIME:');
-      displayTools(timeResult.tools);
-
       console.log('\nFILESYSTEM:');
       displayTools(filesystemResult.tools);
 
@@ -93,7 +89,6 @@ export async function runMcpClient() {
         fetchTools: fetchResult.tools,
         memoryTools: memoryResult.tools,
         sqliteTools: sqliteResult.tools,
-        timeTools: timeResult.tools,
         filesystemTools: filesystemResult.tools,
         gitTools: gitResult.tools
       };
@@ -102,7 +97,6 @@ export async function runMcpClient() {
       fetchResult.transport.close();
       memoryResult.transport.close();
       sqliteResult.transport.close();
-      timeResult.transport.close();
       filesystemResult.transport.close();
       gitResult.transport.close();
     }
