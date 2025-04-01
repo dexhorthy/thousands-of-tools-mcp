@@ -65,6 +65,9 @@ export async function runMcpClient() {
       '--db-path',
       testDbPath
     ]);
+    const timeResult = await connectToServer('uvx', ['mcp-server-time']);
+    const filesystemResult = await connectToServer('npx', ['mcp-server-filesystem', '.']);
+    const gitResult = await connectToServer('uvx', ['mcp-server-git']);
     
     try {
       // Display all tools in a succinct format
@@ -76,17 +79,32 @@ export async function runMcpClient() {
       
       console.log('\nSQLITE:');
       displayTools(sqliteResult.tools);
+
+      console.log('\nTIME:');
+      displayTools(timeResult.tools);
+
+      console.log('\nFILESYSTEM:');
+      displayTools(filesystemResult.tools);
+
+      console.log('\nGIT:');
+      displayTools(gitResult.tools);
       
       return {
         fetchTools: fetchResult.tools,
         memoryTools: memoryResult.tools,
-        sqliteTools: sqliteResult.tools
+        sqliteTools: sqliteResult.tools,
+        timeTools: timeResult.tools,
+        filesystemTools: filesystemResult.tools,
+        gitTools: gitResult.tools
       };
     } finally {
       // Ensure connections are closed
       fetchResult.transport.close();
       memoryResult.transport.close();
       sqliteResult.transport.close();
+      timeResult.transport.close();
+      filesystemResult.transport.close();
+      gitResult.transport.close();
     }
   } catch (error) {
     console.error('Failed to connect to one or more MCP servers:', error);
