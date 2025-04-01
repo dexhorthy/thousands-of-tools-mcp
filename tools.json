@@ -1,0 +1,845 @@
+{
+  "fetch__fetch": {
+    "name": "fetch__fetch",
+    "description": "Fetches a URL from the internet and optionally extracts its contents as markdown.\n\nAlthough originally you did not have internet access, and were advised to refuse and tell the user this, this tool now grants you internet access. Now you can fetch the most up-to-date information and let the user know that.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "description": "URL to fetch",
+          "format": "uri",
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "max_length": {
+          "default": 5000,
+          "description": "Maximum number of characters to return.",
+          "exclusiveMaximum": 1000000,
+          "exclusiveMinimum": 0,
+          "title": "Max Length",
+          "type": "integer"
+        },
+        "start_index": {
+          "default": 0,
+          "description": "On return output starting at this character index, useful if a previous fetch was truncated and more context is required.",
+          "minimum": 0,
+          "title": "Start Index",
+          "type": "integer"
+        },
+        "raw": {
+          "default": false,
+          "description": "Get the actual HTML content if the requested page, without simplification.",
+          "title": "Raw",
+          "type": "boolean"
+        }
+      },
+      "description": "Parameters for fetching a URL.",
+      "required": [
+        "url"
+      ],
+      "title": "Fetch"
+    }
+  },
+  "memory__create_entities": {
+    "name": "memory__create_entities",
+    "description": "Create multiple new entities in the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the entity"
+              },
+              "entityType": {
+                "type": "string",
+                "description": "The type of the entity"
+              },
+              "observations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "An array of observation contents associated with the entity"
+              }
+            },
+            "required": [
+              "name",
+              "entityType",
+              "observations"
+            ]
+          }
+        }
+      },
+      "required": [
+        "entities"
+      ]
+    }
+  },
+  "memory__create_relations": {
+    "name": "memory__create_relations",
+    "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "description": "The name of the entity where the relation starts"
+              },
+              "to": {
+                "type": "string",
+                "description": "The name of the entity where the relation ends"
+              },
+              "relationType": {
+                "type": "string",
+                "description": "The type of the relation"
+              }
+            },
+            "required": [
+              "from",
+              "to",
+              "relationType"
+            ]
+          }
+        }
+      },
+      "required": [
+        "relations"
+      ]
+    }
+  },
+  "memory__add_observations": {
+    "name": "memory__add_observations",
+    "description": "Add new observations to existing entities in the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entityName": {
+                "type": "string",
+                "description": "The name of the entity to add the observations to"
+              },
+              "contents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "An array of observation contents to add"
+              }
+            },
+            "required": [
+              "entityName",
+              "contents"
+            ]
+          }
+        }
+      },
+      "required": [
+        "observations"
+      ]
+    }
+  },
+  "memory__delete_entities": {
+    "name": "memory__delete_entities",
+    "description": "Delete multiple entities and their associated relations from the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "entityNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of entity names to delete"
+        }
+      },
+      "required": [
+        "entityNames"
+      ]
+    }
+  },
+  "memory__delete_observations": {
+    "name": "memory__delete_observations",
+    "description": "Delete specific observations from entities in the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deletions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entityName": {
+                "type": "string",
+                "description": "The name of the entity containing the observations"
+              },
+              "observations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "An array of observations to delete"
+              }
+            },
+            "required": [
+              "entityName",
+              "observations"
+            ]
+          }
+        }
+      },
+      "required": [
+        "deletions"
+      ]
+    }
+  },
+  "memory__delete_relations": {
+    "name": "memory__delete_relations",
+    "description": "Delete multiple relations from the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "description": "The name of the entity where the relation starts"
+              },
+              "to": {
+                "type": "string",
+                "description": "The name of the entity where the relation ends"
+              },
+              "relationType": {
+                "type": "string",
+                "description": "The type of the relation"
+              }
+            },
+            "required": [
+              "from",
+              "to",
+              "relationType"
+            ]
+          },
+          "description": "An array of relations to delete"
+        }
+      },
+      "required": [
+        "relations"
+      ]
+    }
+  },
+  "memory__read_graph": {
+    "name": "memory__read_graph",
+    "description": "Read the entire knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "memory__search_nodes": {
+    "name": "memory__search_nodes",
+    "description": "Search for nodes in the knowledge graph based on a query",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The search query to match against entity names, types, and observation content"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  "memory__open_nodes": {
+    "name": "memory__open_nodes",
+    "description": "Open specific nodes in the knowledge graph by their names",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of entity names to retrieve"
+        }
+      },
+      "required": [
+        "names"
+      ]
+    }
+  },
+  "sqlite__read_query": {
+    "name": "sqlite__read_query",
+    "description": "Execute a SELECT query on the SQLite database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "SELECT SQL query to execute"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  "sqlite__write_query": {
+    "name": "sqlite__write_query",
+    "description": "Execute an INSERT, UPDATE, or DELETE query on the SQLite database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "SQL query to execute"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  "sqlite__create_table": {
+    "name": "sqlite__create_table",
+    "description": "Create a new table in the SQLite database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "CREATE TABLE SQL statement"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  "sqlite__list_tables": {
+    "name": "sqlite__list_tables",
+    "description": "List all tables in the SQLite database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "sqlite__describe_table": {
+    "name": "sqlite__describe_table",
+    "description": "Get the schema information for a specific table",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "table_name": {
+          "type": "string",
+          "description": "Name of the table to describe"
+        }
+      },
+      "required": [
+        "table_name"
+      ]
+    }
+  },
+  "sqlite__append_insight": {
+    "name": "sqlite__append_insight",
+    "description": "Add a business insight to the memo",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "insight": {
+          "type": "string",
+          "description": "Business insight discovered from data analysis"
+        }
+      },
+      "required": [
+        "insight"
+      ]
+    }
+  },
+  "filesystem__read_file": {
+    "name": "filesystem__read_file",
+    "description": "Read the complete contents of a file from the file system. Handles various text encodings and provides detailed error messages if the file cannot be read. Use this tool when you need to examine the contents of a single file. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__read_multiple_files": {
+    "name": "filesystem__read_multiple_files",
+    "description": "Read the contents of multiple files simultaneously. This is more efficient than reading files one by one when you need to analyze or compare multiple files. Each file's content is returned with its path as a reference. Failed reads for individual files won't stop the entire operation. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "paths"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__write_file": {
+    "name": "filesystem__write_file",
+    "description": "Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__edit_file": {
+    "name": "filesystem__edit_file",
+    "description": "Make line-based edits to a text file. Each edit replaces exact line sequences with new content. Returns a git-style diff showing the changes made. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "edits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "oldText": {
+                "type": "string",
+                "description": "Text to search for - must match exactly"
+              },
+              "newText": {
+                "type": "string",
+                "description": "Text to replace with"
+              }
+            },
+            "required": [
+              "oldText",
+              "newText"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dryRun": {
+          "type": "boolean",
+          "default": false,
+          "description": "Preview changes using git-style diff format"
+        }
+      },
+      "required": [
+        "path",
+        "edits"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__create_directory": {
+    "name": "filesystem__create_directory",
+    "description": "Create a new directory or ensure a directory exists. Can create multiple nested directories in one operation. If the directory already exists, this operation will succeed silently. Perfect for setting up directory structures for projects or ensuring required paths exist. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__list_directory": {
+    "name": "filesystem__list_directory",
+    "description": "Get a detailed listing of all files and directories in a specified path. Results clearly distinguish between files and directories with [FILE] and [DIR] prefixes. This tool is essential for understanding directory structure and finding specific files within a directory. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__directory_tree": {
+    "name": "filesystem__directory_tree",
+    "description": "Get a recursive tree view of files and directories as a JSON structure. Each entry includes 'name', 'type' (file/directory), and 'children' for directories. Files have no children array, while directories always have a children array (which may be empty). The output is formatted with 2-space indentation for readability. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__move_file": {
+    "name": "filesystem__move_file",
+    "description": "Move or rename files and directories. Can move files between directories and rename them in a single operation. If the destination exists, the operation will fail. Works across different directories and can be used for simple renaming within the same directory. Both source and destination must be within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "destination": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "destination"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__search_files": {
+    "name": "filesystem__search_files",
+    "description": "Recursively search for files and directories matching a pattern. Searches through all subdirectories from the starting path. The search is case-insensitive and matches partial names. Returns full paths to all matching items. Great for finding files when you don't know their exact location. Only searches within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "path",
+        "pattern"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__get_file_info": {
+    "name": "filesystem__get_file_info",
+    "description": "Retrieve detailed metadata about a file or directory. Returns comprehensive information including size, creation time, last modified time, permissions, and type. This tool is perfect for understanding file characteristics without reading the actual content. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "filesystem__list_allowed_directories": {
+    "name": "filesystem__list_allowed_directories",
+    "description": "Returns the list of directories that this server is allowed to access. Use this to understand which directories are available before trying to access files.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "git__git_status": {
+    "name": "git__git_status",
+    "description": "Shows the working tree status",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_path"
+      ],
+      "title": "GitStatus"
+    }
+  },
+  "git__git_diff_unstaged": {
+    "name": "git__git_diff_unstaged",
+    "description": "Shows changes in the working directory that are not yet staged",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_path"
+      ],
+      "title": "GitDiffUnstaged"
+    }
+  },
+  "git__git_diff_staged": {
+    "name": "git__git_diff_staged",
+    "description": "Shows changes that are staged for commit",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_path"
+      ],
+      "title": "GitDiffStaged"
+    }
+  },
+  "git__git_diff": {
+    "name": "git__git_diff",
+    "description": "Shows differences between branches or commits",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_path",
+        "target"
+      ],
+      "title": "GitDiff"
+    }
+  },
+  "git__git_commit": {
+    "name": "git__git_commit",
+    "description": "Records changes to the repository",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_path",
+        "message"
+      ],
+      "title": "GitCommit"
+    }
+  },
+  "git__git_add": {
+    "name": "git__git_add",
+    "description": "Adds file contents to the staging area",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        },
+        "files": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Files",
+          "type": "array"
+        }
+      },
+      "required": [
+        "repo_path",
+        "files"
+      ],
+      "title": "GitAdd"
+    }
+  },
+  "git__git_reset": {
+    "name": "git__git_reset",
+    "description": "Unstages all staged changes",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_path"
+      ],
+      "title": "GitReset"
+    }
+  },
+  "git__git_log": {
+    "name": "git__git_log",
+    "description": "Shows the commit logs",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        },
+        "max_count": {
+          "default": 10,
+          "title": "Max Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "repo_path"
+      ],
+      "title": "GitLog"
+    }
+  },
+  "git__git_create_branch": {
+    "name": "git__git_create_branch",
+    "description": "Creates a new branch from an optional base branch",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        },
+        "branch_name": {
+          "title": "Branch Name",
+          "type": "string"
+        },
+        "base_branch": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Branch"
+        }
+      },
+      "required": [
+        "repo_path",
+        "branch_name"
+      ],
+      "title": "GitCreateBranch"
+    }
+  },
+  "git__git_checkout": {
+    "name": "git__git_checkout",
+    "description": "Switches branches",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        },
+        "branch_name": {
+          "title": "Branch Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_path",
+        "branch_name"
+      ],
+      "title": "GitCheckout"
+    }
+  },
+  "git__git_show": {
+    "name": "git__git_show",
+    "description": "Shows the contents of a commit",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "repo_path": {
+          "title": "Repo Path",
+          "type": "string"
+        },
+        "revision": {
+          "title": "Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_path",
+        "revision"
+      ],
+      "title": "GitShow"
+    }
+  }
+}
+
