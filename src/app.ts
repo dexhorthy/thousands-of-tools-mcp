@@ -88,8 +88,14 @@ export async function runMcpClient(outputFormat: 'text' | 'json' = 'text') {
 
     try {
       if (outputFormat === 'json') {
-        const jsonOutput = Object.entries(results).reduce((acc, [name, result]) => {
-          acc[name] = result.tools;
+        const jsonOutput = Object.entries(results).reduce((acc, [serverName, result]) => {
+          result.tools.forEach(tool => {
+            const scopedName = `${serverName}__${tool.name}`;
+            acc[scopedName] = {
+              ...tool,
+              name: scopedName
+            };
+          });
           return acc;
         }, {} as Record<string, any>);
         console.log(JSON.stringify(jsonOutput, null, 2));
