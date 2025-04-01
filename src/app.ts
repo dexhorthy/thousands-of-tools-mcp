@@ -45,25 +45,21 @@ async function connectToServer(command: string, args: string[]) {
 
 export async function runMcpClient() {
   try {
-    console.log('# Available MCP Tools\n');
+    console.log('AVAILABLE MCP TOOLS\n');
 
     // Create a test.db file in the user's home directory
     const testDbPath = path.join(os.homedir(), 'test.db');
-    console.log(`Using SQLite database at: ${testDbPath}`);
+    
+    // Creating test database if needed
     try {
-      // Touch the db file to make sure it exists
       execSync(`touch "${testDbPath}"`);
     } catch (error) {
       console.error(`Failed to create SQLite database file: ${error}`);
     }
 
-    // Connect to fetch server
+    // Connect to all servers
     const fetchResult = await connectToServer('uvx', ['mcp-server-fetch']);
-    
-    // Connect to memory server
     const memoryResult = await connectToServer('npx', ['-y', '@modelcontextprotocol/server-memory']);
-    
-    // Connect to sqlite server using uvx
     const sqliteResult = await connectToServer('uvx', [
       'mcp-server-sqlite',
       '--db-path',
@@ -71,14 +67,14 @@ export async function runMcpClient() {
     ]);
     
     try {
-      // Display fetch tools
-      console.log('## Fetch Server Tools\n');
+      // Display all tools in a succinct format
+      console.log('FETCH:');
       displayTools(fetchResult.tools);
       
-      console.log('\n## Memory Server Tools\n');
+      console.log('\nMEMORY:');
       displayTools(memoryResult.tools);
       
-      console.log('\n## SQLite Server Tools\n');
+      console.log('\nSQLITE:');
       displayTools(sqliteResult.tools);
       
       return {
@@ -101,21 +97,30 @@ export async function runMcpClient() {
 function displayTools(tools: any[]) {
   if (Array.isArray(tools)) {
     for (const tool of tools) {
-      console.log(`### ${tool.name}`);
-      console.log(tool.description || '');
+      // Start with tool name and short description
+      const description = tool.description 
+        ? ` # ${tool.description.split('.')[0].trim()}` // Take only first sentence
+        : '';
       
+      console.log(`${tool.name}( ${description}`);
+      
+      // Add parameters
       if (tool.inputSchema?.properties) {
-        console.log('\n#### Parameters:');
-        
-        for (const [paramName, param] of Object.entries(tool.inputSchema.properties)) {
-          const required = tool.inputSchema.required?.includes(paramName) ? '[Required]' : '[Optional]';
-          console.log(`- \`${paramName}\`: ${param.description} ${required}`);
+        const paramEntries = Object.entries(tool.inputSchema.properties);
+        if (paramEntries.length > 0) {
+          paramEntries.forEach(([paramName, param]) => {
+            const type = param.type || 'any';
+            const shortDesc = param.description || '';
+            const description = shortDesc ? ` # ${shortDesc}` : '';
+            const required = tool.inputSchema.required?.includes(paramName) ? '' : '?';
+            console.log(`  ${paramName}${required}: ${type}${description}`);
+          });
         }
       }
-      console.log('');
+      
+      console.log(')');
     }
   } else {
-    console.log('No tools found or unexpected format returned.');
-    console.log('Raw response:', JSON.stringify(tools, null, 2));
+    console.log('No tools found.');
   }
 }
