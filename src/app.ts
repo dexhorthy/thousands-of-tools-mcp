@@ -1,5 +1,8 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import * as path from 'path';
+import * as os from 'os';
+import { execSync } from 'child_process';
 
 async function connectToServer(command: string, args: string[]) {
   // Create a transport that connects to the specified server via stdio
@@ -44,11 +47,28 @@ export async function runMcpClient() {
   try {
     console.log('# Available MCP Tools\n');
 
+    // Create a test.db file in the user's home directory
+    const testDbPath = path.join(os.homedir(), 'test.db');
+    console.log(`Using SQLite database at: ${testDbPath}`);
+    try {
+      // Touch the db file to make sure it exists
+      execSync(`touch "${testDbPath}"`);
+    } catch (error) {
+      console.error(`Failed to create SQLite database file: ${error}`);
+    }
+
     // Connect to fetch server
     const fetchResult = await connectToServer('uvx', ['mcp-server-fetch']);
     
     // Connect to memory server
     const memoryResult = await connectToServer('npx', ['-y', '@modelcontextprotocol/server-memory']);
+    
+    // Connect to sqlite server using uvx
+    const sqliteResult = await connectToServer('uvx', [
+      'mcp-server-sqlite',
+      '--db-path',
+      testDbPath
+    ]);
     
     try {
       // Display fetch tools
@@ -58,14 +78,19 @@ export async function runMcpClient() {
       console.log('\n## Memory Server Tools\n');
       displayTools(memoryResult.tools);
       
+      console.log('\n## SQLite Server Tools\n');
+      displayTools(sqliteResult.tools);
+      
       return {
         fetchTools: fetchResult.tools,
-        memoryTools: memoryResult.tools
+        memoryTools: memoryResult.tools,
+        sqliteTools: sqliteResult.tools
       };
     } finally {
       // Ensure connections are closed
       fetchResult.transport.close();
       memoryResult.transport.close();
+      sqliteResult.transport.close();
     }
   } catch (error) {
     console.error('Failed to connect to one or more MCP servers:', error);
