@@ -1,17 +1,13 @@
 # thousand-tools-mcp
 
-A TypeScript project that provides a unified interface to multiple Model Context Protocol (MCP) servers.
+A TypeScript project for pulling lists of tools off of MCP servers
 
 ## Features
 
-- Configurable server connections via JSON configuration
-- Support for multiple MCP servers:
-  - Fetch: Web content fetching and conversion
-  - Memory: Knowledge graph-based persistent memory
-  - SQLite: Database interaction and business intelligence
-  - Filesystem: Secure file operations with access controls
-  - Git: Repository management and version control
-- Multiple output formats (text and JSON)
+
+- Define servers in src/servers.json
+- dump tools in plaintext with `npm run start
+- dump tools in JSON with `npm run start-json`
 
 ## Setup
 
