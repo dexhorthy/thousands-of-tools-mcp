@@ -102,21 +102,27 @@ function displayTools(tools: any[]) {
         ? ` # ${tool.description.split('.')[0].trim()}` // Take only first sentence
         : '';
       
+      // Check if the tool has parameters
+      const hasParams = tool.inputSchema?.properties && Object.keys(tool.inputSchema.properties).length > 0;
+      
+      if (!hasParams) {
+        // For tools without parameters, show on a single line
+        console.log(`${tool.name}()${description}`);
+        continue;
+      }
+      
+      // For tools with parameters, show on multiple lines
       console.log(`${tool.name}( ${description}`);
       
       // Add parameters
-      if (tool.inputSchema?.properties) {
-        const paramEntries = Object.entries(tool.inputSchema.properties);
-        if (paramEntries.length > 0) {
-          paramEntries.forEach(([paramName, param]) => {
-            const type = param.type || 'any';
-            const shortDesc = param.description || '';
-            const description = shortDesc ? ` # ${shortDesc}` : '';
-            const required = tool.inputSchema.required?.includes(paramName) ? '' : '?';
-            console.log(`  ${paramName}${required}: ${type}${description}`);
-          });
-        }
-      }
+      const paramEntries = Object.entries(tool.inputSchema.properties);
+      paramEntries.forEach(([paramName, param]) => {
+        const type = param.type || 'any';
+        const shortDesc = param.description || '';
+        const description = shortDesc ? ` # ${shortDesc}` : '';
+        const required = tool.inputSchema.required?.includes(paramName) ? '' : '?';
+        console.log(`  ${paramName}${required}: ${type}${description}`);
+      });
       
       console.log(')');
     }
