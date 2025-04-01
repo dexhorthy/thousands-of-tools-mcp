@@ -3,12 +3,15 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import * as path from 'path';
 import * as os from 'os';
 import { execSync } from 'child_process';
+import serverConfigs from './servers.json' assert { type: 'json' };
+import { ServerConfig, ServerConfigs, ServerResult, ServerResults } from './types.js';
 
-async function connectToServer(command: string, args: string[]) {
+async function connectToServer(config: ServerConfig) {
   // Create a transport that connects to the specified server via stdio
   const transport = new StdioClientTransport({
-    command,
-    args
+    command: config.command,
+    args: config.args,
+    env: config.env
   });
 
   // Create an MCP client with capabilities for tools
@@ -38,14 +41,16 @@ async function connectToServer(command: string, args: string[]) {
     };
   } catch (error) {
     transport.close();
-    console.error(`Error connecting to MCP server (${command} ${args.join(' ')}):`, error);
+    console.error(`Error connecting to MCP server (${config.command} ${config.args.join(' ')}):`, error);
     throw error;
   }
 }
 
-export async function runMcpClient() {
+export async function runMcpClient(outputFormat: 'text' | 'json' = 'text') {
   try {
-    console.log('AVAILABLE MCP TOOLS\n');
+    if (outputFormat === 'text') {
+      console.log('AVAILABLE MCP TOOLS\n');
+    }
 
     // Create a test.db file in the user's home directory
     const testDbPath = path.join(os.homedir(), 'test.db');
@@ -57,48 +62,42 @@ export async function runMcpClient() {
       console.error(`Failed to create SQLite database file: ${error}`);
     }
 
+    // Update SQLite config with expanded home path
+    const configs = {...serverConfigs} as ServerConfigs;
+    if (configs.sqlite) {
+      configs.sqlite.args = configs.sqlite.args.map(arg => 
+        arg === '~/test.db' ? testDbPath : arg
+      );
+    }
+
     // Connect to all servers
-    const fetchResult = await connectToServer('uvx', ['mcp-server-fetch']);
-    const memoryResult = await connectToServer('npx', ['-y', '@modelcontextprotocol/server-memory']);
-    const sqliteResult = await connectToServer('uvx', [
-      'mcp-server-sqlite',
-      '--db-path',
-      testDbPath
-    ]);
-    const filesystemResult = await connectToServer('npx', ['-y', '@modelcontextprotocol/server-filesystem', '.']);
-    const gitResult = await connectToServer('uvx', ['mcp-server-git']);
-    
+    const results: ServerResults = {};
+    for (const [name, config] of Object.entries(configs)) {
+      try {
+        results[name] = await connectToServer(config);
+        
+        // Display tools for this server
+        if (outputFormat === 'text') {
+          console.log(`\n${name.toUpperCase()}:`);
+          displayTools(results[name].tools);
+        }
+      } catch (error) {
+        console.error(`Failed to connect to ${name} server:`, error);
+      }
+    }
+
     try {
-      // Display all tools in a succinct format
-      console.log('FETCH:');
-      displayTools(fetchResult.tools);
-      
-      console.log('\nMEMORY:');
-      displayTools(memoryResult.tools);
-      
-      console.log('\nSQLITE:');
-      displayTools(sqliteResult.tools);
-
-      console.log('\nFILESYSTEM:');
-      displayTools(filesystemResult.tools);
-
-      console.log('\nGIT:');
-      displayTools(gitResult.tools);
-      
-      return {
-        fetchTools: fetchResult.tools,
-        memoryTools: memoryResult.tools,
-        sqliteTools: sqliteResult.tools,
-        filesystemTools: filesystemResult.tools,
-        gitTools: gitResult.tools
-      };
+      if (outputFormat === 'json') {
+        const jsonOutput = Object.entries(results).reduce((acc, [name, result]) => {
+          acc[name] = result.tools;
+          return acc;
+        }, {} as Record<string, any>);
+        console.log(JSON.stringify(jsonOutput, null, 2));
+      }
+      return results;
     } finally {
-      // Ensure connections are closed
-      fetchResult.transport.close();
-      memoryResult.transport.close();
-      sqliteResult.transport.close();
-      filesystemResult.transport.close();
-      gitResult.transport.close();
+      // Ensure all connections are closed
+      Object.values(results).forEach(result => result.transport.close());
     }
   } catch (error) {
     console.error('Failed to connect to one or more MCP servers:', error);

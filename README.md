@@ -1,6 +1,17 @@
 # thousand-tools-mcp
 
-A TypeScript project with Jest testing.
+A TypeScript project that provides a unified interface to multiple Model Context Protocol (MCP) servers.
+
+## Features
+
+- Configurable server connections via JSON configuration
+- Support for multiple MCP servers:
+  - Fetch: Web content fetching and conversion
+  - Memory: Knowledge graph-based persistent memory
+  - SQLite: Database interaction and business intelligence
+  - Filesystem: Secure file operations with access controls
+  - Git: Repository management and version control
+- Multiple output formats (text and JSON)
 
 ## Setup
 
@@ -9,48 +20,60 @@ A TypeScript project with Jest testing.
 npm install
 ```
 
+## Configuration
+
+Server configurations are defined in `src/servers.json`. Each server entry specifies:
+- `command`: The command to run the server (e.g., `uvx`, `npx`)
+- `args`: Command line arguments
+- `env` (optional): Environment variables
+
+Example configuration:
+```json
+{
+  "fetch": {
+    "command": "uvx",
+    "args": ["mcp-server-fetch"]
+  },
+  "memory": {
+    "command": "npx",
+    "args": ["-y", "@modelcontextprotocol/server-memory"]
+  }
+}
+```
+
 ## Development
 
 ```bash
-# Run the application
+# Run the application (text output)
 npm run start
-# or directly
-tsx src/index.ts
+
+# Run the application (JSON output)
+npm run start-json
 
 # Run in watch mode
 npm run dev
-```
 
-## Testing
-
-```bash
-# Run all tests
+# Run tests
 npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run a specific test file
-jest src/utils.test.ts
-
-# Run tests matching a pattern
-jest -t "adds two numbers"
-```
-
-## Build
-
-```bash
-# Build the project
-npm run build
 ```
 
 ## Project Structure
 
 - `src/` - Source code
+  - `app.ts` - Main application logic
   - `index.ts` - Entry point
-  - `utils.ts` - Utility functions
+  - `servers.json` - Server configurations
+  - `types.ts` - TypeScript type definitions
   - `*.test.ts` - Test files
 - `dist/` - Compiled output
+
+## Adding New Servers
+
+To add a new MCP server:
+
+1. Add its configuration to `src/servers.json`
+2. The server will be automatically loaded and its tools displayed
+
+## License
+
+MIT

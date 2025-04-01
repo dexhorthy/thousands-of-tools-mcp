@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
+    "start-json": "tsx src/index.ts --json",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "lint": "eslint .",
