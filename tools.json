@@ -1,4 +1,2280 @@
 {
+  "e2b__run_code": {
+    "name": "e2b__run_code",
+    "description": "Run python code in a secure sandbox by E2B. Using the Jupyter Notebook syntax.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__execute_command": {
+    "name": "desktop-commander__execute_command",
+    "description": "Execute a terminal command with timeout. Command will continue running in background if it doesn't complete within timeout.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "timeout_ms": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__read_output": {
+    "name": "desktop-commander__read_output",
+    "description": "Read new output from a running terminal session.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "pid": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "pid"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__force_terminate": {
+    "name": "desktop-commander__force_terminate",
+    "description": "Force terminate a running terminal session.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "pid": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "pid"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__list_sessions": {
+    "name": "desktop-commander__list_sessions",
+    "description": "List all active terminal sessions.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__list_processes": {
+    "name": "desktop-commander__list_processes",
+    "description": "List all running processes. Returns process information including PID, command name, CPU usage, and memory usage.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "desktop-commander__kill_process": {
+    "name": "desktop-commander__kill_process",
+    "description": "Terminate a running process by PID. Use with caution as this will forcefully terminate the specified process.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "pid": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "pid"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__block_command": {
+    "name": "desktop-commander__block_command",
+    "description": "Add a command to the blacklist. Once blocked, the command cannot be executed until unblocked.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__unblock_command": {
+    "name": "desktop-commander__unblock_command",
+    "description": "Remove a command from the blacklist. Once unblocked, the command can be executed normally.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__list_blocked_commands": {
+    "name": "desktop-commander__list_blocked_commands",
+    "description": "List all currently blocked commands.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "desktop-commander__read_file": {
+    "name": "desktop-commander__read_file",
+    "description": "Read the complete contents of a file from the file system. Reads UTF-8 text and provides detailed error messages if the file cannot be read. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__read_multiple_files": {
+    "name": "desktop-commander__read_multiple_files",
+    "description": "Read the contents of multiple files simultaneously. Each file's content is returned with its path as a reference. Failed reads for individual files won't stop the entire operation. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "paths"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__write_file": {
+    "name": "desktop-commander__write_file",
+    "description": "Completely replace file contents. Best for large changes (>20% of file) or when edit_block fails. Use with caution as it will overwrite existing files. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string" } }, "required": [
+        "path",
+        "content"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__create_directory": {
+    "name": "desktop-commander__create_directory",
+    "description": "Create a new directory or ensure a directory exists. Can create multiple nested directories in one operation. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__list_directory": {
+    "name": "desktop-commander__list_directory",
+    "description": "Get a detailed listing of all files and directories in a specified path. Results distinguish between files and directories with [FILE] and [DIR] prefixes. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__move_file": {
+    "name": "desktop-commander__move_file",
+    "description": "Move or rename files and directories. Can move files between directories and rename them in a single operation. Both source and destination must be within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "destination": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "destination"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__search_files": {
+    "name": "desktop-commander__search_files",
+    "description": "Finds files by name using a case-insensitive substring matching. Searches through all subdirectories from the starting path. Only searches within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "pattern"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__search_code": {
+    "name": "desktop-commander__search_code",
+    "description": "Search for text/code patterns within file contents using ripgrep. Fast and powerful search similar to VS Code search functionality. Supports regular expressions, file pattern filtering, and context lines. Only searches within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "filePattern": {
+          "type": "string"
+        },
+        "ignoreCase": {
+          "type": "boolean"
+        },
+        "maxResults": {
+          "type": "number"
+        },
+        "includeHidden": {
+          "type": "boolean"
+        },
+        "contextLines": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "path",
+        "pattern"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__get_file_info": {
+    "name": "desktop-commander__get_file_info",
+    "description": "Retrieve detailed metadata about a file or directory including size, creation time, last modified time, permissions, and type. Only works within allowed directories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "desktop-commander__list_allowed_directories": {
+    "name": "desktop-commander__list_allowed_directories",
+    "description": "Returns the list of directories that this server is allowed to access.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "desktop-commander__edit_block": {
+    "name": "desktop-commander__edit_block",
+    "description": "Apply surgical text replacements to files. Best for small changes (<20% of file size). Call repeatedly to change multiple blocks. Will verify changes after application. Format:\nfilepath\n<<<<<<< SEARCH\ncontent to find\n=======\nnew content\n>>>>>>> REPLACE",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "blockContent": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "blockContent"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "brave-search__brave_web_search": {
+    "name": "brave-search__brave_web_search",
+    "description": "Performs a web search using the Brave Search API, ideal for general queries, news, articles, and online content. Use this for broad information gathering, recent events, or when you need diverse web sources. Supports pagination, content filtering, and freshness controls. Maximum 20 results per request, with offset for pagination. ",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Search query (max 400 chars, 50 words)"
+        },
+        "count": {
+          "type": "number",
+          "description": "Number of results (1-20, default 10)",
+          "default": 10
+        },
+        "offset": {
+          "type": "number",
+          "description": "Pagination offset (max 9, default 0)",
+          "default": 0
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  "brave-search__brave_local_search": {
+    "name": "brave-search__brave_local_search",
+    "description": "Searches for local businesses and places using Brave's Local Search API. Best for queries related to physical locations, businesses, restaurants, services, etc. Returns detailed information including:\n- Business names and addresses\n- Ratings and review counts\n- Phone numbers and opening hours\nUse this when the query implies 'near me' or mentions specific locations. Automatically falls back to web search if no local results are found.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Local search query (e.g. 'pizza near Central Park')"
+        },
+        "count": {
+          "type": "number",
+          "description": "Number of results (1-20, default 5)",
+          "default": 5
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  "neon____node_version": {
+    "name": "neon____node_version",
+    "description": "Get the Node.js version used by the MCP server",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__list_projects": {
+    "name": "neon__list_projects",
+    "description": "List all Neon projects in your account.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "cursor": {
+              "type": "string",
+              "description": "Specify the cursor value from the previous response to retrieve the next batch of projects."
+            },
+            "limit": {
+              "type": "number",
+              "description": "Specify a value from 1 to 400 to limit number of projects in the response."
+            },
+            "search": {
+              "type": "string",
+              "description": "Search by project name or id. You can specify partial name or id values to filter results."
+            },
+            "org_id": {
+              "type": "string",
+              "description": "Search for projects by org_id."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__create_project": {
+    "name": "neon__create_project",
+    "description": "Create a new Neon project. If someone is trying to create a database, use this tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "An optional name of the project to create."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__delete_project": {
+    "name": "neon__delete_project",
+    "description": "Delete a Neon project",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project to delete"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__describe_project": {
+    "name": "neon__describe_project",
+    "description": "Describes a Neon project",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project to describe"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__run_sql": {
+    "name": "neon__run_sql",
+    "description": "Execute a single SQL statement against a Neon database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "sql": {
+              "type": "string",
+              "description": "The SQL query to execute"
+            },
+            "databaseName": {
+              "type": "string",
+              "description": "The name of the database to execute the query against"
+            },
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project to execute the query against"
+            },
+            "branchId": {
+              "type": "string",
+              "description": "An optional ID of the branch to execute the query against"
+            }
+          },
+          "required": [
+            "sql",
+            "databaseName",
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__run_sql_transaction": {
+    "name": "neon__run_sql_transaction",
+    "description": "Execute a SQL transaction against a Neon database, should be used for multiple SQL statements",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "sqlStatements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The SQL statements to execute"
+            },
+            "databaseName": {
+              "type": "string",
+              "description": "The name of the database to execute the query against"
+            },
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project to execute the query against"
+            },
+            "branchId": {
+              "type": "string",
+              "description": "An optional ID of the branch to execute the query against"
+            }
+          },
+          "required": [
+            "sqlStatements",
+            "databaseName",
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__describe_table_schema": {
+    "name": "neon__describe_table_schema",
+    "description": "Describe the schema of a table in a Neon database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string",
+              "description": "The name of the table"
+            },
+            "databaseName": {
+              "type": "string",
+              "description": "The name of the database to get the table schema from"
+            },
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project to execute the query against"
+            },
+            "branchId": {
+              "type": "string",
+              "description": "An optional ID of the branch to execute the query against"
+            }
+          },
+          "required": [
+            "tableName",
+            "databaseName",
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__get_database_tables": {
+    "name": "neon__get_database_tables",
+    "description": "Get all tables in a Neon database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project"
+            },
+            "branchId": {
+              "type": "string",
+              "description": "An optional ID of the branch"
+            },
+            "databaseName": {
+              "type": "string",
+              "description": "The name of the database"
+            }
+          },
+          "required": [
+            "projectId",
+            "databaseName"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__create_branch": {
+    "name": "neon__create_branch",
+    "description": "Create a branch in a Neon project",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project to create the branch in"
+            },
+            "branchName": {
+              "type": "string",
+              "description": "An optional name for the branch"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__prepare_database_migration": {
+    "name": "neon__prepare_database_migration",
+    "description": "\n  <use_case>\n    This tool performs database schema migrations by automatically generating and executing DDL statements.\n    \n    Supported operations:\n    CREATE operations:\n    - Add new columns (e.g., \"Add email column to users table\")\n    - Create new tables (e.g., \"Create posts table with title and content columns\")\n    - Add constraints (e.g., \"Add unique constraint on users.email\")\n\n    ALTER operations:\n    - Modify column types (e.g., \"Change posts.views to bigint\")\n    - Rename columns (e.g., \"Rename user_name to username in users table\")\n    - Add/modify indexes (e.g., \"Add index on posts.title\")\n    - Add/modify foreign keys (e.g., \"Add foreign key from posts.user_id to users.id\")\n\n    DROP operations:\n    - Remove columns (e.g., \"Drop temporary_field from users table\")\n    - Drop tables (e.g., \"Drop the old_logs table\")\n    - Remove constraints (e.g., \"Remove unique constraint from posts.slug\")\n\n    The tool will:\n    1. Parse your natural language request\n    2. Generate appropriate SQL\n    3. Execute in a temporary branch for safety\n    4. Verify the changes before applying to main branch\n\n    Project ID and database name will be automatically extracted from your request.\n    Default database is neondb if not specified.\n  </use_case>\n\n  <workflow>\n    1. Creates a temporary branch\n    2. Applies the migration SQL in that branch\n    3. Returns migration details for verification\n  </workflow>\n\n  <important_notes>\n    After executing this tool, you MUST:\n    1. Test the migration in the temporary branch using the 'run_sql' tool\n    2. Ask for confirmation before proceeding\n    3. Use 'complete_database_migration' tool to apply changes to main branch\n  </important_notes>\n\n  <example>\n    For a migration like:\n    ALTER TABLE users ADD COLUMN last_login TIMESTAMP;\n    \n    You should test it with:\n    SELECT column_name, data_type \n    FROM information_schema.columns \n    WHERE table_name = 'users' AND column_name = 'last_login';\n    \n    You can use 'run_sql' to test the migration in the temporary branch that this\n    tool creates.\n  </example>\n\n\n  <next_steps>\n  After executing this tool, you MUST follow these steps:\n    1. Use 'run_sql' to verify changes on temporary branch\n    2. Follow these instructions to respond to the client: \n\n      <response_instructions>\n        <instructions>\n          Provide a brief confirmation of the requested change and ask for migration commit approval.\n\n          You MUST include ALL of the following fields in your response:\n          - Migration ID (this is required for commit and must be shown first)  \n          - Temporary Branch Name (always include exact branch name)\n          - Temporary Branch ID (always include exact ID)\n          - Migration Result (include brief success/failure status)\n\n          Even if some fields are missing from the tool's response, use placeholders like \"not provided\" rather than omitting fields.\n        </instructions>\n\n        <do_not_include>\n          IMPORTANT: Your response MUST NOT contain ANY technical implementation details such as:\n          - Data types (e.g., DO NOT mention if a column is boolean, varchar, timestamp, etc.)\n          - Column specifications or properties\n          - SQL syntax or statements\n          - Constraint definitions or rules\n          - Default values\n          - Index types\n          - Foreign key specifications\n          \n          Keep the response focused ONLY on confirming the high-level change and requesting approval.\n          \n          <example>\n            INCORRECT: \"I've added a boolean is_published column to the posts table...\"\n            CORRECT: \"I've added the is_published column to the posts table...\"\n          </example>\n        </do_not_include>\n\n        <example>\n          I've verified that [requested change] has been successfully applied to a temporary branch. Would you like to commit the migration [migration_id] to the main branch?\n          \n          Migration Details:\n          - Migration ID (required for commit)\n          - Temporary Branch Name\n          - Temporary Branch ID\n          - Migration Result\n        </example>\n      </response_instructions>\n\n    3. If approved, use 'complete_database_migration' tool with the migration_id\n  </next_steps>\n\n  <error_handling>\n    On error, the tool will:\n    1. Automatically attempt ONE retry of the exact same operation\n    2. If the retry fails:\n      - Terminate execution\n      - Return error details\n      - DO NOT attempt any other tools or alternatives\n    \n    Error response will include:\n    - Original error details\n    - Confirmation that retry was attempted\n    - Final error state\n    \n    Important: After a failed retry, you must terminate the current flow completely. Do not attempt to use alternative tools or workarounds.\n  </error_handling>\n          ",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "migrationSql": {
+              "type": "string",
+              "description": "The SQL to execute to create the migration"
+            },
+            "databaseName": {
+              "type": "string",
+              "description": "The name of the database to execute the query against"
+            },
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project to execute the query against"
+            }
+          },
+          "required": [
+            "migrationSql",
+            "databaseName",
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__complete_database_migration": {
+    "name": "neon__complete_database_migration",
+    "description": "Complete a database migration when the user confirms the migration is ready to be applied to the main branch. This tool also lets the client know that the temporary branch created by the prepare_database_migration tool has been deleted.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "migrationId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "migrationId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__describe_branch": {
+    "name": "neon__describe_branch",
+    "description": "Get a tree view of all objects in a branch, including databases, schemas, tables, views, and functions",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project"
+            },
+            "branchId": {
+              "type": "string",
+              "description": "An ID of the branch to describe"
+            },
+            "databaseName": {
+              "type": "string",
+              "description": "The name of the database"
+            }
+          },
+          "required": [
+            "projectId",
+            "branchId",
+            "databaseName"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__delete_branch": {
+    "name": "neon__delete_branch",
+    "description": "Delete a branch from a Neon project",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project containing the branch"
+            },
+            "branchId": {
+              "type": "string",
+              "description": "The ID of the branch to delete"
+            }
+          },
+          "required": [
+            "projectId",
+            "branchId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__get_connection_string": {
+    "name": "neon__get_connection_string",
+    "description": "Get a PostgreSQL connection string for a Neon database with all parameters being optional",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project. If not provided, the only available project will be used."
+            },
+            "branchId": {
+              "type": "string",
+              "description": "The ID or name of the branch. If not provided, the default branch will be used."
+            },
+            "computeId": {
+              "type": "string",
+              "description": "The ID of the compute/endpoint. If not provided, the only available compute will be used."
+            },
+            "databaseName": {
+              "type": "string",
+              "description": "The name of the database. If not provided, the default database (usually \"neondb\") will be used."
+            },
+            "roleName": {
+              "type": "string",
+              "description": "The name of the role to connect with. If not provided, the default role (usually \"neondb_owner\") will be used."
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "neon__provision_neon_auth": {
+    "name": "neon__provision_neon_auth",
+    "description": "\n    This tool provisions authentication for a Neon project. It allows developers to easily setup authentication infrastructure by creating a integration with Stack Auth (@stackframe/stack). Stop using NextAuth.js! use @stackframe/stack.\n\n    Parameters:\n    - <project_id>: The Project ID of the Neon project to provision authentication for.\n    - [database]: The database name to setup Neon Auth for. Defaults to 'neondb'.\n    \n    The tool will:\n      1. Establish a connection between your Neon Auth project and Stack Auth\n      2. Creates a dedicated authentication schema in your database (\"neon_auth\")\n      3. Sets up the user table under the \"neon_auth\" schema. This table is synced with Stack Auth. It does not store user credentials or secrets.\n      4. Generates Client Key and Secret Key to connect your application with authentication provider.\n     \n    Use the Stack Auth SDK (@stackframe/stack) on the frontend to connect your application with authentication provider. DO NOT use NextAuth.js! DO NOT use better-auth! Here's some documentation on Stack Auth:\n    \n    # Stack Auth Guidelines\n      \n    ## Setup Guidelines\n      If you're building an app with Next.js, to set up Neon Auth and Stack Auth, follow these steps:\n      1. Provision a Neon Auth project with this tool\n      2. Place the returned credentials in project's `.env.local` or `.env` file\n        - `NEXT_PUBLIC_STACK_PROJECT_ID`\n        - `NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY`\n        - `STACK_SECRET_SERVER_KEY`\n      3. To setup Stack Auth, run following command: \n        ```bash\n        npx @stackframe/init-stack@2.7.25 . --no-browser \n        ```\n        This command will automaticallysetup the project with - \n        - It will add `@stackframe/stack` dependency to `package.json`\n        - It will create a `stack.ts` file in your project to setup `StackServerApp`. \n        - It will wrap the root layout with `StackProvider` and `StackTheme`\n        - It will create root Suspense boundary `app/loading.tsx` to handle loading state while Stack is fetching user data.\n        - It will also create `app/handler/[...stack]/page.tsx` file to handle auth routes like sign in, sign up, forgot password, etc.\n      4. Do not try to manually create any of these files or directories. Do not try to create SignIn, SignUp, or UserButton components manually, instead use the ones provided by `@stackframe/stack`.\n      \n      \n    ## Components Guidelines\n      - Use pre-built components from `@stackframe/stack` like `<UserButton />`, `<SignIn />`, and `<SignUp />` to quickly set up auth UI.\n      - You can also compose smaller pieces like `<OAuthButtonGroup />`, `<MagicLinkSignIn />`, and `<CredentialSignIn />` for custom flows.\n      - Example:\n        \n        ```tsx\n        import { SignIn } from '@stackframe/stack';\n        export default function Page() {\n          return <SignIn />;\n        }\n        ```\n\n    ## User Management Guidelines\n      - In Client Components, use the `useUser()` hook to retrieve the current user (it returns `null` when not signed in).\n      - Update user details using `user.update({...})` and sign out via `user.signOut()`.\n      - For pages that require a user, call `useUser({ or: \"redirect\" })` so unauthorized visitors are automatically redirected.\n    \n    ## Client Component Guidelines\n      - Client Components rely on hooks like `useUser()` and `useStackApp()`.\n      - Example:\n        \n        ```tsx\n        \"use client\";\n        import { useUser } from \"@stackframe/stack\";\n        export function MyComponent() {\n          const user = useUser();\n          return <div>{user ? `Hello, ${user.displayName}` : \"Not logged in\"}</div>;\n        }\n        ```\n      \n    ## Server Component Guidelines\n      - For Server Components, use `stackServerApp.getUser()` from your `stack.ts` file.\n      - Example:\n        \n        ```tsx\n        import { stackServerApp } from \"@/stack\";\n        export default async function ServerComponent() {\n          const user = await stackServerApp.getUser();\n          return <div>{user ? `Hello, ${user.displayName}` : \"Not logged in\"}</div>;\n        }\n        ```\n    \n    ## Page Protection Guidelines\n      - Protect pages by:\n        - Using `useUser({ or: \"redirect\" })` in Client Components.\n        - Using `await stackServerApp.getUser({ or: \"redirect\" })` in Server Components.\n        - Implementing middleware that checks for a user and redirects to `/handler/sign-in` if not found.\n      - Example middleware:\n        \n        ```tsx\n        export async function middleware(request: NextRequest) {\n          const user = await stackServerApp.getUser();\n          if (!user) {\n            return NextResponse.redirect(new URL('/handler/sign-in', request.url));\n          }\n          return NextResponse.next();\n        }\n        export const config = { matcher: '/protected/:path*' };\n        ```\n      \n      ```\n      ## Examples\n      ### Example: custom-profile-page\n      #### Task\n      Create a custom profile page that:\n      - Displays the user's avatar, display name, and email.\n      - Provides options to sign out.\n      - Uses Stack Auth components and hooks.\n      #### Response\n      ##### File: app/profile/page.tsx\n      ###### Code\n      ```tsx\n      'use client';\n      import { useUser, useStackApp, UserButton } from '@stackframe/stack';\n      export default function ProfilePage() {\n        const user = useUser({ or: \"redirect\" });\n        const app = useStackApp();\n        return (\n          <div>\n            <UserButton />\n            <h1>Welcome, {user.displayName || \"User\"}</h1>\n            <p>Email: {user.primaryEmail}</p>\n            <button onClick={() => user.signOut()}>Sign Out</button>\n          </div>\n        );\n      }\n      ```\n        ",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "description": "The ID of the project to provision Neon Auth for"
+            },
+            "database": {
+              "type": "string",
+              "description": "The database name to setup Neon Auth for. Defaults to 'neondb'",
+              "default": "neondb"
+            }
+          },
+          "required": [
+            "projectId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "params"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "notion-api-mcp__create_page": {
+    "name": "notion-api-mcp__create_page",
+    "description": "Create a new page in Notion",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "parent_id": {
+          "title": "Parent Id",
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": true,
+          "title": "Properties"
+        },
+        "children": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Children"
+        },
+        "is_database": {
+          "default": true,
+          "title": "Is Database",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parent_id",
+        "properties"
+      ],
+      "title": "handle_create_pageArguments"
+    }
+  },
+  "notion-api-mcp__get_page": {
+    "name": "notion-api-mcp__get_page",
+    "description": "Retrieve a Notion page by its ID",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "page_id": {
+          "title": "Page Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "page_id"
+      ],
+      "title": "handle_get_pageArguments"
+    }
+  },
+  "notion-api-mcp__update_page": {
+    "name": "notion-api-mcp__update_page",
+    "description": "Update a Notion page",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "page_id": {
+          "title": "Page Id",
+          "type": "string"
+        },
+        "properties": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Properties"
+        },
+        "archived": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Archived"
+        }
+      },
+      "required": [
+        "page_id"
+      ],
+      "title": "handle_update_pageArguments"
+    }
+  },
+  "notion-api-mcp__archive_page": {
+    "name": "notion-api-mcp__archive_page",
+    "description": "Archive a Notion page",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "page_id": {
+          "title": "Page Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "page_id"
+      ],
+      "title": "handle_archive_pageArguments"
+    }
+  },
+  "notion-api-mcp__restore_page": {
+    "name": "notion-api-mcp__restore_page",
+    "description": "Restore an archived Notion page",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "page_id": {
+          "title": "Page Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "page_id"
+      ],
+      "title": "handle_restore_pageArguments"
+    }
+  },
+  "notion-api-mcp__get_page_property": {
+    "name": "notion-api-mcp__get_page_property",
+    "description": "Get a page property item",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "page_id": {
+          "title": "Page Id",
+          "type": "string"
+        },
+        "property_id": {
+          "title": "Property Id",
+          "type": "string"
+        },
+        "page_size": {
+          "default": 100,
+          "title": "Page Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "page_id",
+        "property_id"
+      ],
+      "title": "handle_get_property_itemArguments"
+    }
+  },
+  "notion-api-mcp__add_todo": {
+    "name": "notion-api-mcp__add_todo",
+    "description": "Add a new todo with rich features",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "task": {
+          "title": "Task",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "due_date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Due Date"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority"
+        },
+        "tags": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tags"
+        }
+      },
+      "required": [
+        "task"
+      ],
+      "title": "handle_add_todoArguments"
+    }
+  },
+  "notion-api-mcp__search_todos": {
+    "name": "notion-api-mcp__search_todos",
+    "description": "Search todos with advanced filtering",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "property_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Property Name"
+        },
+        "sort_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sort By"
+        },
+        "sort_direction": {
+          "default": "ascending",
+          "title": "Sort Direction",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "title": "handle_search_todosArguments"
+    }
+  },
+  "notion-api-mcp__create_database": {
+    "name": "notion-api-mcp__create_database",
+    "description": "Create a new database with custom schema in a parent page",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "parent_page_id": {
+          "title": "Parent Page Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": true,
+          "title": "Properties"
+        }
+      },
+      "required": [
+        "parent_page_id",
+        "title",
+        "properties"
+      ],
+      "title": "handle_create_databaseArguments"
+    }
+  },
+  "notion-api-mcp__query_database": {
+    "name": "notion-api-mcp__query_database",
+    "description": "Query database with filters and sorting",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "database_id": {
+          "title": "Database Id",
+          "type": "string"
+        },
+        "filter_conditions": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filter Conditions"
+        },
+        "sorts": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sorts"
+        }
+      },
+      "required": [
+        "database_id"
+      ],
+      "title": "handle_query_databaseArguments"
+    }
+  },
+  "notion-api-mcp__verify_connection": {
+    "name": "notion-api-mcp__verify_connection",
+    "description": "Verify authentication with Notion API",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "title": "handle_verify_connectionArguments"
+    }
+  },
+  "notion-api-mcp__get_database_info": {
+    "name": "notion-api-mcp__get_database_info",
+    "description": "Get information about the configured database",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "title": "handle_get_database_infoArguments"
+    }
+  },
+  "notion-api-mcp__add_content_blocks": {
+    "name": "notion-api-mcp__add_content_blocks",
+    "description": "Add content blocks with positioning support",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "page_id": {
+          "title": "Page Id",
+          "type": "string"
+        },
+        "blocks": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Blocks",
+          "type": "array"
+        },
+        "after": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        },
+        "batch_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Batch Size"
+        }
+      },
+      "required": [
+        "page_id",
+        "blocks"
+      ],
+      "title": "handle_add_blocksArguments"
+    }
+  },
+  "notion-api-mcp__get_block_content": {
+    "name": "notion-api-mcp__get_block_content",
+    "description": "Get content of a specific block by its ID",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "block_id"
+      ],
+      "title": "handle_get_blockArguments"
+    }
+  },
+  "notion-api-mcp__list_block_children": {
+    "name": "notion-api-mcp__list_block_children",
+    "description": "List all children of a block",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "page_size": {
+          "default": 100,
+          "title": "Page Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "block_id"
+      ],
+      "title": "handle_list_block_childrenArguments"
+    }
+  },
+  "notion-api-mcp__update_block_content": {
+    "name": "notion-api-mcp__update_block_content",
+    "description": "Update a block's content by its ID",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "content": {
+          "additionalProperties": true,
+          "title": "Content",
+          "type": "object"
+        }
+      },
+      "required": [
+        "block_id",
+        "content"
+      ],
+      "title": "handle_update_blockArguments"
+    }
+  },
+  "notion-api-mcp__delete_block": {
+    "name": "notion-api-mcp__delete_block",
+    "description": "Delete blocks",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "block_id"
+      ],
+      "title": "handle_delete_blockArguments"
+    }
+  },
+  "linear-mcp-server__linear_create_issue": {
+    "name": "linear-mcp-server__linear_create_issue",
+    "description": "Creates a new Linear issue with specified details. Use this to create tickets for tasks, bugs, or feature requests. Returns the created issue's identifier and URL. Required fields are title and teamId, with optional description, priority (0-4, where 0 is no priority and 1 is urgent), and status.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Issue title"
+        },
+        "teamId": {
+          "type": "string",
+          "description": "Team ID"
+        },
+        "description": {
+          "type": "string",
+          "description": "Issue description"
+        },
+        "priority": {
+          "type": "number",
+          "description": "Priority (0-4)"
+        },
+        "status": {
+          "type": "string",
+          "description": "Issue status"
+        }
+      },
+      "required": [
+        "title",
+        "teamId"
+      ]
+    }
+  },
+  "linear-mcp-server__linear_update_issue": {
+    "name": "linear-mcp-server__linear_update_issue",
+    "description": "Updates an existing Linear issue's properties. Use this to modify issue details like title, description, priority, or status. Requires the issue ID and accepts any combination of updatable fields. Returns the updated issue's identifier and URL.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Issue ID"
+        },
+        "title": {
+          "type": "string",
+          "description": "New title"
+        },
+        "description": {
+          "type": "string",
+          "description": "New description"
+        },
+        "priority": {
+          "type": "number",
+          "description": "New priority (0-4)"
+        },
+        "status": {
+          "type": "string",
+          "description": "New status"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  "linear-mcp-server__linear_search_issues": {
+    "name": "linear-mcp-server__linear_search_issues",
+    "description": "Searches Linear issues using flexible criteria. Supports filtering by any combination of: title/description text, team, status, assignee, labels, priority (1=urgent, 2=high, 3=normal, 4=low), and estimate. Returns up to 10 issues by default (configurable via limit).",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Optional text to search in title and description"
+        },
+        "teamId": {
+          "type": "string",
+          "description": "Filter by team ID"
+        },
+        "status": {
+          "type": "string",
+          "description": "Filter by status name (e.g., 'In Progress', 'Done')"
+        },
+        "assigneeId": {
+          "type": "string",
+          "description": "Filter by assignee's user ID"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Filter by label names"
+        },
+        "priority": {
+          "type": "number",
+          "description": "Filter by priority (1=urgent, 2=high, 3=normal, 4=low)"
+        },
+        "estimate": {
+          "type": "number",
+          "description": "Filter by estimate points"
+        },
+        "includeArchived": {
+          "type": "boolean",
+          "description": "Include archived issues in results (default: false)"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Max results to return (default: 10)"
+        }
+      }
+    }
+  },
+  "linear-mcp-server__linear_get_user_issues": {
+    "name": "linear-mcp-server__linear_get_user_issues",
+    "description": "Retrieves issues assigned to a specific user or the authenticated user if no userId is provided. Returns issues sorted by last updated, including priority, status, and other metadata. Useful for finding a user's workload or tracking assigned tasks.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Optional user ID. If not provided, returns authenticated user's issues"
+        },
+        "includeArchived": {
+          "type": "boolean",
+          "description": "Include archived issues in results"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Maximum number of issues to return (default: 50)"
+        }
+      }
+    }
+  },
+  "linear-mcp-server__linear_add_comment": {
+    "name": "linear-mcp-server__linear_add_comment",
+    "description": "Adds a comment to an existing Linear issue. Supports markdown formatting in the comment body. Can optionally specify a custom user name and avatar for the comment. Returns the created comment's details including its URL.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "issueId": {
+          "type": "string",
+          "description": "ID of the issue to comment on"
+        },
+        "body": {
+          "type": "string",
+          "description": "Comment text in markdown format"
+        },
+        "createAsUser": {
+          "type": "string",
+          "description": "Optional custom username to show for the comment"
+        },
+        "displayIconUrl": {
+          "type": "string",
+          "description": "Optional avatar URL for the comment"
+        }
+      },
+      "required": [
+        "issueId",
+        "body"
+      ]
+    }
+  },
+  "claude-code-mcp__bash": {
+    "name": "claude-code-mcp__bash",
+    "description": "Execute a shell command",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "The shell command to execute"
+        },
+        "timeout": {
+          "type": "number",
+          "description": "Optional timeout in milliseconds (max 600000)"
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "claude-code-mcp__readFile": {
+    "name": "claude-code-mcp__readFile",
+    "description": "Read a file from the local filesystem",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "description": "The absolute path to the file to read"
+        },
+        "offset": {
+          "type": "number",
+          "description": "The line number to start reading from"
+        },
+        "limit": {
+          "type": "number",
+          "description": "The number of lines to read"
+        }
+      },
+      "required": [
+        "file_path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "claude-code-mcp__listFiles": {
+    "name": "claude-code-mcp__listFiles",
+    "description": "Lists files and directories in a given path",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "The absolute path to the directory to list"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "claude-code-mcp__searchGlob": {
+    "name": "claude-code-mcp__searchGlob",
+    "description": "Search for files matching a pattern",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "The glob pattern to match files against"
+        },
+        "path": {
+          "type": "string",
+          "description": "The directory to search in. Defaults to the current working directory."
+        }
+      },
+      "required": [
+        "pattern"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "claude-code-mcp__grep": {
+    "name": "claude-code-mcp__grep",
+    "description": "Search for text in files",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "pattern": {
+          "type": "string",
+          "description": "The regular expression pattern to search for in file contents"
+        },
+        "path": {
+          "type": "string",
+          "description": "The directory to search in. Defaults to the current working directory."
+        },
+        "include": {
+          "type": "string",
+          "description": "File pattern to include in the search (e.g. \"*.js\", \"*.{ts,tsx}\")"
+        }
+      },
+      "required": [
+        "pattern"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "claude-code-mcp__think": {
+    "name": "claude-code-mcp__think",
+    "description": "A tool for thinking through complex problems",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "thought": {
+          "type": "string",
+          "description": "Your thoughts"
+        }
+      },
+      "required": [
+        "thought"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "claude-code-mcp__codeReview": {
+    "name": "claude-code-mcp__codeReview",
+    "description": "Review code for bugs, security issues, and best practices",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "The code to review"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "claude-code-mcp__editFile": {
+    "name": "claude-code-mcp__editFile",
+    "description": "Create or edit a file",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "description": "The absolute path to the file to edit"
+        },
+        "content": {
+          "type": "string",
+          "description": "The new content for the file"
+        }
+      },
+      "required": [
+        "file_path",
+        "content"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "playwright-mcp-server__echo": {
+    "name": "playwright-mcp-server__echo",
+    "description": "入力されたメッセージをそのまま返します",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "エコーするメッセージ"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+  },
+  "playwright-mcp-server__navigate": {
+    "name": "playwright-mcp-server__navigate",
+    "description": "指定されたURLにブラウザでアクセスします",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "アクセスするURL"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  },
+  "playwright-mcp-server__get_all_content": {
+    "name": "playwright-mcp-server__get_all_content",
+    "description": "現在開いているページのコンテンツを取得し、HTML構造を保持した形式で返します",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "playwright-mcp-server__get_visible_content": {
+    "name": "playwright-mcp-server__get_visible_content",
+    "description": "現在開いているページの表示領域内のコンテンツを取得します",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "minVisiblePercentage": {
+          "type": "number",
+          "description": "要素の最小可視率（%）",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": []
+    }
+  },
+  "playwright-mcp-server__get_interactive_elements": {
+    "name": "playwright-mcp-server__get_interactive_elements",
+    "description": "ページ内のインタラクティブ要素（ボタン、テキストエリア、ラジオボタンなど）の座標と範囲を取得します",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "playwright-mcp-server__move_mouse": {
+    "name": "playwright-mcp-server__move_mouse",
+    "description": "指定された座標にマウスカーソルを移動します",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number",
+          "description": "X座標"
+        },
+        "y": {
+          "type": "number",
+          "description": "Y座標"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ]
+    }
+  },
+  "playwright-mcp-server__mouse_click": {
+    "name": "playwright-mcp-server__mouse_click",
+    "description": "指定された座標でマウスクリックを実行します",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number",
+          "description": "X座標"
+        },
+        "y": {
+          "type": "number",
+          "description": "Y座標"
+        },
+        "button": {
+          "type": "string",
+          "description": "マウスボタン（'left', 'right', 'middle'）",
+          "enum": [
+            "left",
+            "right",
+            "middle"
+          ]
+        },
+        "clickCount": {
+          "type": "number",
+          "description": "クリック回数（デフォルト: 1）"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ]
+    }
+  },
+  "playwright-mcp-server__mouse_wheel": {
+    "name": "playwright-mcp-server__mouse_wheel",
+    "description": "マウスホイールのスクロールを実行します",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deltaX": {
+          "type": "number",
+          "description": "水平方向のスクロール量（ピクセル）"
+        },
+        "deltaY": {
+          "type": "number",
+          "description": "垂直方向のスクロール量（ピクセル）"
+        }
+      },
+      "required": [
+        "deltaY"
+      ]
+    }
+  },
+  "playwright-mcp-server__drag_and_drop": {
+    "name": "playwright-mcp-server__drag_and_drop",
+    "description": "ドラッグアンドドロップ操作を実行します",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "sourceX": {
+          "type": "number",
+          "description": "ドラッグ開始位置のX座標"
+        },
+        "sourceY": {
+          "type": "number",
+          "description": "ドラッグ開始位置のY座標"
+        },
+        "targetX": {
+          "type": "number",
+          "description": "ドロップ位置のX座標"
+        },
+        "targetY": {
+          "type": "number",
+          "description": "ドロップ位置のY座標"
+        }
+      },
+      "required": [
+        "sourceX",
+        "sourceY",
+        "targetX",
+        "targetY"
+      ]
+    }
+  },
+  "mcp-duckdb-memory-server__create_entities": {
+    "name": "mcp-duckdb-memory-server__create_entities",
+    "description": "Create multiple new entities in the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the entity"
+              },
+              "entityType": {
+                "type": "string",
+                "description": "The type of the entity"
+              },
+              "observations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "An array of observation contents associated with the entity"
+              }
+            },
+            "required": [
+              "name",
+              "entityType",
+              "observations"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "entities"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "mcp-duckdb-memory-server__create_relations": {
+    "name": "mcp-duckdb-memory-server__create_relations",
+    "description": "Create multiple new relations between entities in the knowledge graph. Relations should be in active voice",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "description": "The name of the entity where the relation starts"
+              },
+              "to": {
+                "type": "string",
+                "description": "The name of the entity where the relation ends"
+              },
+              "relationType": {
+                "type": "string",
+                "description": "The type of the relation"
+              }
+            },
+            "required": [
+              "from",
+              "to",
+              "relationType"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "relations"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "mcp-duckdb-memory-server__add_observations": {
+    "name": "mcp-duckdb-memory-server__add_observations",
+    "description": "Add new observations to existing entities in the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entityName": {
+                "type": "string",
+                "description": "The name of the entity to add the observations to"
+              },
+              "contents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "An array of observation contents to add"
+              }
+            },
+            "required": [
+              "entityName",
+              "contents"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "observations"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "mcp-duckdb-memory-server__delete_entities": {
+    "name": "mcp-duckdb-memory-server__delete_entities",
+    "description": "Delete multiple entities and their associated relations from the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "entityNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of entity names to delete"
+        }
+      },
+      "required": [
+        "entityNames"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "mcp-duckdb-memory-server__delete_observations": {
+    "name": "mcp-duckdb-memory-server__delete_observations",
+    "description": "Delete specific observations from entities in the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "deletions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entityName": {
+                "type": "string",
+                "description": "The name of the entity containing the observations"
+              },
+              "contents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "An array of observations to delete"
+              }
+            },
+            "required": [
+              "entityName",
+              "contents"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "deletions"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "mcp-duckdb-memory-server__delete_relations": {
+    "name": "mcp-duckdb-memory-server__delete_relations",
+    "description": "Delete multiple relations from the knowledge graph",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string",
+                "description": "The name of the entity where the relation starts"
+              },
+              "to": {
+                "type": "string",
+                "description": "The name of the entity where the relation ends"
+              },
+              "relationType": {
+                "type": "string",
+                "description": "The type of the relation"
+              }
+            },
+            "required": [
+              "from",
+              "to",
+              "relationType"
+            ],
+            "additionalProperties": false
+          },
+          "description": "An array of relations to delete"
+        }
+      },
+      "required": [
+        "relations"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "mcp-duckdb-memory-server__search_nodes": {
+    "name": "mcp-duckdb-memory-server__search_nodes",
+    "description": "Search for nodes in the knowledge graph based on a query",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The search query to match against entity names, types, and observation content"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "mcp-duckdb-memory-server__open_nodes": {
+    "name": "mcp-duckdb-memory-server__open_nodes",
+    "description": "Open specific nodes in the knowledge graph by their names",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of entity names to retrieve"
+        }
+      },
+      "required": [
+        "names"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "mcp-stagehand__stagehand_navigate": {
+    "name": "mcp-stagehand__stagehand_navigate",
+    "description": "Navigate to a URL in the browser. Only use this tool with URLs you're confident will work and stay up to date. Otheriwse use https://google.com as the starting point",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The URL to navigate to"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  },
+  "mcp-stagehand__stagehand_act": {
+    "name": "mcp-stagehand__stagehand_act",
+    "description": "Performs an action on a web page element. Act actions should be as atomic and \n      specific as possible, i.e. \"Click the sign in button\" or \"Type 'hello' into the search input\". \n      AVOID actions that are more than one step, i.e. \"Order me pizza\" or \"Send an email to Paul \n      asking him to call me\". ",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "The action to perform. Should be as atomic and specific as possible, \n          i.e. 'Click the sign in button' or 'Type 'hello' into the search input'. AVOID actions that are more than one \n          step, i.e. 'Order me pizza' or 'Send an email to Paul asking him to call me'. The instruction should be just as specific as possible, \n          and have a strong correlation to the text on the page. If unsure, use observe before using act.\""
+        },
+        "variables": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Variables used in the action template. ONLY use variables if you're dealing \n            with sensitive data or dynamic content. For example, if you're logging in to a website, \n            you can use a variable for the password. When using variables, you MUST have the variable\n            key in the action template. For example: {\"action\": \"Fill in the password\", \"variables\": {\"password\": \"123456\"}}"
+        }
+      },
+      "required": [
+        "action"
+      ]
+    }
+  },
+  "mcp-stagehand__stagehand_extract": {
+    "name": "mcp-stagehand__stagehand_extract",
+    "description": "Extracts all of the text from the current page.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "mcp-stagehand__stagehand_observe": {
+    "name": "mcp-stagehand__stagehand_observe",
+    "description": "Observes elements on the web page. Use this tool to observe elements that you can later use in an action. Use observe instead of extract when dealing with actionable (interactable) elements rather than text. More often than not, you'll want to use extract instead of observe when dealing with scraping or extracting structured text.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "instruction": {
+          "type": "string",
+          "description": "Instruction for observation (e.g., 'find the login button'). This instruction must be extremely specific."
+        }
+      },
+      "required": [
+        "instruction"
+      ]
+    }
+  },
+  "mcp-stagehand__screenshot": {
+    "name": "mcp-stagehand__screenshot",
+    "description": "Takes a screenshot of the current page. Use this tool to learn where you are on the page when controlling the browser with Stagehand. Only use this tool when the other tools are not sufficient to get the information you need.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
   "fetch__fetch": {
     "name": "fetch__fetch",
     "description": "Fetches a URL from the internet and optionally extracts its contents as markdown.\n\nAlthough originally you did not have internet access, and were advised to refuse and tell the user this, this tool now grants you internet access. Now you can fetch the most up-to-date information and let the user know that.",
@@ -842,4 +3118,3 @@
     }
   }
 }
-
